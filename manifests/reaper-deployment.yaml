@@ -1,0 +1,33 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: reaper
+spec:
+  selector:
+    matchLabels:
+      run: reaper
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        run: reaper
+    spec:
+      containers:
+      - image: jsanda/cassandra-reaper-k8s:latest
+      #- image: gcr.io/google_containers/busybox
+        imagePullPolicy: Always
+        name: reaper
+        ports:
+        - containerPort: 8080
+          name: ui
+          protocol: TCP
+        volumeMounts:
+        - name: reaper-config
+          mountPath: /etc/cassandra-reaper
+      volumes:
+        - name: reaper-config
+          configMap: 
+            name: reaper-config
+            items:
+            - key: reaper.yaml
+              path: cassandra-reaper.yaml

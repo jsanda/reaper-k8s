@@ -1,0 +1,57 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: reaper
+data:
+  segmentCountPerNode: 16
+  repairParallelism: DATACENTER_AWARE
+  repairIntensity: 0.9
+  scheduleDaysBetween: 7
+  repairRunThreadCount: 15
+  hangingRepairTimeoutMins: 30
+  storageType: memory
+  enableCrossOrigin: true
+  incrementalRepair: false
+  blacklistTwcsTables: true
+  enableDynamicSeedList: true
+  repairManagerSchedulingIntervalSeconds: 10
+  jmxConnectionTimeoutInSeconds: 5
+  useAddressTranslator: false
+  datacenterAvailability: ALL
+  logging:
+    level: INFO
+    loggers:
+      io.dropwizard: WARN
+      org.eclipse.jetty: WARN
+    appenders:
+      - type: console
+        logFormat: "%-6level [%d] [%t] %logger{5} - %msg %n"
+        threshold: WARN
+      - type: file
+        logFormat: "%-6level [%t] %logger{5} - %msg %n"
+        currentLogFilename: /var/log/cassandra-reaper/reaper.log
+        archivedLogFilenamePattern: /var/log/cassandra-reaper/reaper-%d.log.gz
+        archivedFileCount: 99
+
+  server:
+    type: default
+    applicationConnectors:
+      - type: http
+        port: 8080
+        bindHost: 0.0.0.0
+    adminConnectors:
+      - type: http
+        port: 8081
+        bindHost: 0.0.0.0
+    requestLog:
+      appenders: []
+
+  autoScheduling:
+    enabled: false
+    initialDelayPeriod: PT15S
+    periodBetweenPolls: PT10M
+    timeBeforeFirstSchedule: PT5M
+    scheduleSpreadPeriod: PT6H
+    excludedKeyspaces:
+      - keyspace1
+      - keyspace2
